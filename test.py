@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import urllib2
 import urllib
 import json
 import sys
@@ -23,10 +22,10 @@ def main():
 
 	global desired_forks
 	desired_forks = get_desired_forks()
-	if len(desired_forks) == 0:
-		print "Retrieving all forks..."
-		print
-		desired_forks = fork_list
+	#if len(desired_forks) == 0:
+	print "Retrieving all forks..."
+	print
+	desired_forks = fork_list
 
 	# Add balance entry per fork
 	for coincode, coindata in desired_forks.viewitems():
@@ -37,30 +36,35 @@ def main():
 	
 	
 	for coindata in desired_forks.viewitems():
-		print (coindata)
+		#print (coindata)
 		#print (coindata[0])
-		print (coindata[1]["exp"])
+		print "Debug : Explorer : " + (coindata[1]["exp"])
 	
 	
 	for addr in addr_list:
-		print (addr)
+		print "Debug : Wallet : " + (addr)
 		for  coindata in desired_forks.viewitems():
 			#print (coincode)
 		
 			a = urllib.urlopen(coindata[1]["exp"] + addr).read()
-			txs = json.loads(a)["balanceSat"]
+			txs = json.loads(a)["balance"]
 
-		#print (coincode)
-		#print(coindata["exp"] + addr)
+			print "Debug : Coin : " + (coindata[0])
+			
+			#print(coindata["exp"] + addr)
 		
-			print txs
+			print ("Debug : Balance : " + str(txs))
 			#print coincode
+
 		
 		for coincode, coindata in desired_forks.viewitems():
 			#valid = process_txs(addr, txs, coindata)
 
 			#for value in valid:
+			
 			coindata["balances"][addr] += txs
+			
+			
 			coindata["total_value"] = sum(coindata["balances"].values())
 			
 	
@@ -70,7 +74,7 @@ def main():
 		#print (coindata)
 
 def print_balances():
-	decimals = 100000000.0
+	decimals = 1.0
 	for coincode, coindata in desired_forks.viewitems():
 		if coindata["total_value"] > 0:
 			print
@@ -84,20 +88,20 @@ def print_balances():
 					balance_fmt = format((balance / decimals), ".8f")
 					print addr_fmt + balance_fmt.rjust(15, " ") + " BTC "
 
-
-def get_cli_args():
-	if len(sys.argv) == 1:
-		print "You can also specify which forks you want. Example: python " + sys.argv[0] + " btv bcx"
-		return None
-
-	return [arg.upper() for arg in sys.argv[1:]]
-
 def get_desired_forks():
-	cli_args = get_cli_args()
-	if cli_args is None:
-		return {}
-	return { k : v for k, v in fork_list.iteritems() if k in cli_args }
+	return {}
+	#cli_args = get_cli_args()
+	#if cli_args is None:
+	#return { k : v for k, v in fork_list.iteritems() if k in cli_args }
 
+main()
+
+#def get_cli_args():
+#	if len(sys.argv) == 1:
+#		print "You can also specify which forks you want. Example: python " + sys.argv[0] + " btv bcx"
+#		return None
+#
+#	return [arg.upper() for arg in sys.argv[1:]]
 
 #def print_commands():
 #	for coincode, coindata in desired_forks.viewitems():
@@ -130,5 +134,3 @@ def get_desired_forks():
 #				break
 #
 #	return valid
-
-main()
